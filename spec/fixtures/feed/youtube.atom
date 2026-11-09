@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/">
+  <id>yt:channel:UCaJBwb7XkojUOPbz_6uzPag</id>
+  <title>EWTN News</title>
+  <link rel="alternate" href="https://www.youtube.com/channel/UCaJBwb7XkojUOPbz_6uzPag"/>
+  <author><name>EWTN News</name></author>
+  <published>2007-04-11T21:53:35+00:00</published>
+  <entry>
+    <id>yt:video:new-video</id>
+    <yt:videoId>new-video</yt:videoId>
+    <title>Latest news &amp; analysis</title>
+    <link rel="self" href="https://www.youtube.com/feeds/videos.xml?video_id=new-video"/>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=new-video"/>
+    <published>2026-11-09T18:00:00+00:00</published>
+    <updated>2026-11-09T19:00:00+00:00</updated>
+    <media:group>
+      <media:title>Latest news &amp; analysis</media:title>
+      <media:description>Today's news &amp; analysis.</media:description>
+    </media:group>
+  </entry>
+  <entry>
+    <id>yt:video:older-video</id>
+    <title>Earlier news</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=older-video"/>
+    <published>2026-11-08T18:00:00+00:00</published>
+    <updated>2026-11-09T20:00:00+00:00</updated>
+    <media:group><media:description>Earlier headlines.</media:description></media:group>
+  </entry>
+</feed>

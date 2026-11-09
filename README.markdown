@@ -17,6 +17,25 @@ resource_types:
 
 * `url`: *Required.* The URL of the feed. Anything that can be parsed by Ruby's [RSS](https://www.rubydoc.info/gems/rss) gem should be good.
 
+# Atom and YouTube feeds
+
+Atom feeds are also supported, including YouTube channel feeds that omit the
+feed-level `updated` element. For example:
+
+```yaml
+resources:
+  - name: ewtnnews
+    type: rss-resource
+    source:
+      url: https://www.youtube.com/feeds/videos.xml?channel_id=UCaJBwb7XkojUOPbz_6uzPag
+```
+
+Atom entries use `published` as their `pubDate`, falling back to `updated` when
+`published` is absent. Each entry must have one of these dates. The resource
+writes the entry's title, alternate link, ID (`guid`), and description to the
+same files as an RSS item. Descriptions come from Atom summary or content,
+falling back to YouTube's Media RSS description.
+
 # Behavior
 
 ## `check`: Extract items from the feed
