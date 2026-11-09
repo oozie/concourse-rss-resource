@@ -16,7 +16,7 @@ module Concourse
         end
 
         def call(source, version, _params = nil)
-          version = Time.parse(version.fetch('pubDate'))
+          version = Time.parse(version['published'] || version.fetch('pubDate'))
           url = source.fetch('url')
 
           feed = Feed.new(url)

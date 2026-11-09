@@ -83,6 +83,35 @@ describe Concourse::Resource::RSS::In do
     end
   end
 
+  context 'with a published date in the version' do
+    let(:version) { { 'published' => '2016-10-27T00:00:00+00:00' } }
+
+    it 'fetches the item using published' do
+      expect(subject.call(source, version)['version']).to eq('pubDate' => Time.parse(desired_pub_date))
+    end
+
+    it 'prefers published when pubDate is also present' do
+      version['pubDate'] = '2046-10-27T00:00:00+00:00'
+      expect(subject.call(source, version)['version']).to eq('pubDate' => Time.parse(desired_pub_date))
+    end
+  end
+
+  context 'with a nil published date' do
+    let(:version) { { 'published' => nil, 'pubDate' => desired_pub_date } }
+
+    it 'falls back to pubDate' do
+      expect(subject.call(source, version)['version']).to eq('pubDate' => Time.parse(desired_pub_date))
+    end
+  end
+
+  context 'without either date field' do
+    let(:version) { {} }
+
+    it 'reports the missing date' do
+      expect { subject.call(source, version) }.to raise_error(KeyError, /pubDate/)
+    end
+  end
+
   it 'accepts params passed as an arbitrary JSON object' do
     params = { 'params' => { 'some' => 'thing', 'else' => 42 } }
     output = subject.call(source, version, params)

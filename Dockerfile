@@ -2,7 +2,7 @@ ARG RUBY_VERSION=4
 FROM ruby:${RUBY_VERSION}
 LABEL org.opencontainers.image.source=https://github.com/suhlig/concourse-rss-resource
 
-RUN apk add --no-cache build-base && rm -rf /var/cache/apk/*
+RUN apk add --no-cache build-base ruby-dev && rm -rf /var/cache/apk/*
 
 WORKDIR /resource
 COPY Gemfile Gemfile.lock ./
