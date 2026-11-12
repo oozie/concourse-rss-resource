@@ -60,6 +60,64 @@ Concourse::Resource::RSS::Feed
     end
   end
 
+  context 'with a redirect' do
+    let(:redirect_url) { 'https://feeds.example.com/versions.rss' }
+
+    before do
+      stub_request(:get, url).to_return(status: 302, headers: { 'Location' => redirect_url })
+      stub_request(:get, redirect_url).to_return(status: 200, body: feed_body)
+    end
+
+    [301, 302, 303, 307, 308].each do |status|
+      it "follows a #{status} redirect to the feed" do
+        stub_request(:get, url).to_return(status: status, headers: { 'Location' => redirect_url })
+
+        expect(subject.title).to eq('PostgreSQL latest versions')
+        expect(subject.items).to have(20).items
+        expect(a_request(:get, redirect_url)).to have_been_made.once
+      end
+    end
+
+    context 'with a relative Location' do
+      let(:redirect_url) { 'https://www.postgresql.org/feeds/versions.rss' }
+
+      it 'resolves the Location against the source URL' do
+        stub_request(:get, url).to_return(status: 302, headers: { 'Location' => 'feeds/versions.rss' })
+
+        expect(subject.title).to eq('PostgreSQL latest versions')
+        expect(a_request(:get, redirect_url)).to have_been_made.once
+      end
+    end
+
+    it 'follows a chain and resolves relative URLs against the latest URL' do
+      final_url = 'https://feeds.example.com/latest.rss'
+      stub_request(:get, redirect_url).to_return(status: 302, headers: { 'Location' => 'latest.rss' })
+      stub_request(:get, final_url).to_return(status: 200, body: feed_body)
+
+      expect(subject.title).to eq('PostgreSQL latest versions')
+      expect(a_request(:get, final_url)).to have_been_made.once
+    end
+
+    it 'reports an unavailable redirect destination' do
+      stub_request(:get, redirect_url).to_return(status: 404)
+
+      expect { subject }.to raise_error(Concourse::Resource::RSS::FeedUnavailable, /404/)
+    end
+
+    it 'reports a missing Location header' do
+      stub_request(:get, url).to_return(status: 302)
+
+      expect { subject }.to raise_error(Concourse::Resource::RSS::FeedUnavailable, /no Location header/)
+    end
+
+    it 'stops following redirect loops' do
+      stub_request(:get, url).to_return(status: 302, headers: { 'Location' => url })
+
+      expect { subject }.to raise_error(Concourse::Resource::RSS::FeedUnavailable, /too many redirects/)
+      expect(a_request(:get, url)).to have_been_made.times(6)
+    end
+  end
+
   context 'with an empty feed' do
     let(:feed_body) { '' }
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'faraday'
+require 'uri'
 require 'concourse/resource/rss/errors'
 require 'rss'
 require 'rexml/document'
@@ -18,7 +19,7 @@ module Concourse
         attr_reader :title, :items, :last_build_date, :last_item_date
 
         def initialize(url)
-          response = Faraday.get(url)
+          response = fetch(url)
           raise FeedUnavailable, "Could not fetch URL #{url}; status is #{response.status}" if response.status != 200
 
           feed = parse(response.body)
@@ -40,6 +41,17 @@ module Concourse
         end
 
         private
+
+        def fetch(url, redirects_left = 5)
+          response = Faraday.get(url)
+          return response unless [301, 302, 303, 307, 308].include?(response.status)
+
+          location = response.headers['location']
+          raise FeedUnavailable, "Could not fetch URL #{url}; redirect has no Location header" if location.to_s.empty?
+          raise FeedUnavailable, "Could not fetch URL #{url}; too many redirects" if redirects_left.zero?
+
+          fetch(URI.join(url, location).to_s, redirects_left - 1)
+        end
 
         def parse(body)
           ::RSS::Parser.parse(body)
