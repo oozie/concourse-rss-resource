@@ -16,8 +16,8 @@ module Concourse
       end
 
       class VersionUnavailable < StandardError
-        def initialize(version, source)
-          super("There is no version matching #{version} available at the source #{source}")
+        def initialize(version, source, xml)
+          super("There is no version matching #{version} available at the source #{source}\nExamined feed XML:\n#{xml}")
         end
       end
     end

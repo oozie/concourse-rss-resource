@@ -16,16 +16,17 @@ module Concourse
           alias_method :pubDate, :date # rubocop:disable Naming/MethodName
         end
 
-        attr_reader :title, :items, :last_build_date, :last_item_date
+        attr_reader :title, :items, :last_build_date, :last_item_date, :xml
 
         def initialize(url)
           response = fetch(url)
           raise FeedUnavailable, "Could not fetch URL #{url}; status is #{response.status}" if response.status != 200
 
-          feed = parse(response.body)
+          @xml = response.body
+          feed = parse(xml)
           raise FeedInvalid, url unless feed
 
-          handle(feed, response.body)
+          handle(feed, xml)
         end
 
         def items_newer_than(version)

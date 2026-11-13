@@ -21,7 +21,7 @@ module Concourse
 
           feed = Feed.new(url)
           item = feed.items_at(version).first
-          raise VersionUnavailable.new(version, source) if item.nil?
+          raise VersionUnavailable.new(version, source, feed.xml) if item.nil?
 
           @serializer.serialize(item)
           to_json(item)

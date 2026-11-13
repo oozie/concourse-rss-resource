@@ -131,10 +131,13 @@ describe Concourse::Resource::RSS::In do
   context 'the desired resource version is unavailable' do
     let(:desired_pub_date) { 'Thu, 27 Oct 2046 00:00:00 +0000' }
 
-    it 'raises an error' do
-      expect do
-        subject.call(source, version)
-      end.to raise_error(Concourse::Resource::RSS::VersionUnavailable)
+    it 'raises an error containing the requested version, source, and examined XML' do
+      expect { subject.call(source, version) }.to raise_error(Concourse::Resource::RSS::VersionUnavailable) do |error|
+        expect(error.message).to include("There is no version matching #{Time.parse(desired_pub_date)}")
+        expect(error.message).to include("available at the source #{source}")
+        expect(error.message).to end_with("Examined feed XML:\n#{fixture('feed/postgres-versions.rss')}")
+      end
+      expect(WebMock).to have_requested(:get, source.fetch('url')).once
     end
   end
 end
